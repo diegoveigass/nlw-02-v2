@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcryptjs';
+import { hash } from 'bcryptjs';
 
 import db from '../database/connection';
 
@@ -13,7 +13,7 @@ export default class UsersController {
       return response.status(400).json({ error: 'User already exists' });
     }
 
-    const password_hash = await bcrypt.hash(password, 8);
+    const password_hash = await hash(password, 8);
 
     const trx = await db.transaction();
 
