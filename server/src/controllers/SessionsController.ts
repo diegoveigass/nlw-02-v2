@@ -29,6 +29,8 @@ export default class SessionsController {
     }
 
     delete userExists[0].password_hash;
+    delete userExists[0].passwordResetToken;
+    delete userExists[0].passwordResetExpires;
 
     const { id } = userExists[0];
 
