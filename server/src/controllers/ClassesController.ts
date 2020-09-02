@@ -11,7 +11,7 @@ interface ScheduleItemProps {
 export default class ClassesController {
   async index(request: Request, response: Response) {
     const filters = request.query;
-    // const { page = 1 } = request.query;
+    const { page = 1 } = request.query;
 
     const subject = filters.subject as string;
     const week_day = filters.week_day as string;
@@ -20,7 +20,9 @@ export default class ClassesController {
     if (!week_day || !subject || !time) {
       const classes = await db('classes')
         .join('users', 'classes.user_id', '=', 'users.id')
-        .select(['classes.*', 'name', 'avatar', 'bio', 'whatsapp']);
+        .select(['classes.*', 'name', 'avatar', 'bio', 'whatsapp'])
+        .limit(5)
+        .offset((Number(page) - 1) * 5);
 
       const newClasses = classes.map(async classe => {
         classe.schedule = await db('class_schedule')
@@ -48,13 +50,14 @@ export default class ClassesController {
       })
       .where('classes.subject', '=', subject)
       .join('users', 'classes.user_id', '=', 'users.id')
-      .select(['classes.*', 'users.*']);
+      .select(['classes.*', 'name', 'avatar', 'bio', 'whatsapp'])
+      .limit(5)
+      .offset((Number(page) - 1) * 5);
 
     const newClasses = classes.map(async classe => {
-      classe.schedule = await db('class_schedule').where(
-        'user_id',
-        classe.user_id,
-      );
+      classe.schedule = await db('class_schedule')
+        .where('user_id', classe.user_id)
+        .whereRaw('class_id = ??', [classe.id]);
 
       return classe;
     });
